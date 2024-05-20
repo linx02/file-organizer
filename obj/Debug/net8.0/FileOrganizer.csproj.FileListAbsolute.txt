@@ -1,0 +1,15 @@
+/Users/linuselvius/Documents/file-organizer/bin/Debug/net8.0/FileOrganizer
+/Users/linuselvius/Documents/file-organizer/bin/Debug/net8.0/FileOrganizer.deps.json
+/Users/linuselvius/Documents/file-organizer/bin/Debug/net8.0/FileOrganizer.runtimeconfig.json
+/Users/linuselvius/Documents/file-organizer/bin/Debug/net8.0/FileOrganizer.dll
+/Users/linuselvius/Documents/file-organizer/bin/Debug/net8.0/FileOrganizer.pdb
+/Users/linuselvius/Documents/file-organizer/obj/Debug/net8.0/FileOrganizer.GeneratedMSBuildEditorConfig.editorconfig
+/Users/linuselvius/Documents/file-organizer/obj/Debug/net8.0/FileOrganizer.AssemblyInfoInputs.cache
+/Users/linuselvius/Documents/file-organizer/obj/Debug/net8.0/FileOrganizer.AssemblyInfo.cs
+/Users/linuselvius/Documents/file-organizer/obj/Debug/net8.0/FileOrganizer.csproj.CoreCompileInputs.cache
+/Users/linuselvius/Documents/file-organizer/obj/Debug/net8.0/FileOrganizer.sourcelink.json
+/Users/linuselvius/Documents/file-organizer/obj/Debug/net8.0/FileOrganizer.dll
+/Users/linuselvius/Documents/file-organizer/obj/Debug/net8.0/refint/FileOrganizer.dll
+/Users/linuselvius/Documents/file-organizer/obj/Debug/net8.0/FileOrganizer.pdb
+/Users/linuselvius/Documents/file-organizer/obj/Debug/net8.0/FileOrganizer.genruntimeconfig.cache
+/Users/linuselvius/Documents/file-organizer/obj/Debug/net8.0/ref/FileOrganizer.dll
