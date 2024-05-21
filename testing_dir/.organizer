@@ -1,6 +1,0 @@
-Test/ file*.py, *file.txt, file.txt
-Images/ *.jpg, *.png
-Code/ *.py, *.js, *.json
-
-!Important/
-!test.js

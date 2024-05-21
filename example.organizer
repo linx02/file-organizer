@@ -1,0 +1,8 @@
+Images/ *.png, *.jpg, *.webp
+Documents/ *.xlsx, *.pdf, *.md
+Code/ *.py, *.js
+Code/Data/ data.json, more_data.json
+Code/Tests/ test_*.py, *_test.py
+
+!Important/
+!super_important.txt

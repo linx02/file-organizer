@@ -1,0 +1,5 @@
+/Users/linuselvius/Documents/file-organizer/out/FileOrganizer
+/Users/linuselvius/Documents/file-organizer/out/FileOrganizer.dll
+/Users/linuselvius/Documents/file-organizer/out/FileOrganizer.deps.json
+/Users/linuselvius/Documents/file-organizer/out/FileOrganizer.runtimeconfig.json
+/Users/linuselvius/Documents/file-organizer/out/FileOrganizer.pdb
