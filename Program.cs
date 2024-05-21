@@ -33,6 +33,14 @@ namespace FileOrganizer
                     case "--verbose":
                         verbose = true;
                         break;
+                    case "-h":
+                    case "--help":
+                        PrintHelp();
+                        return;
+                    case "-s":
+                    case "--syntax":
+                        Organizer.CheckSyntax(Path.Combine(directoryPath, ".organizer"));
+                        return;
                 }
             }
 
@@ -47,6 +55,17 @@ namespace FileOrganizer
             {
                 organizer.RemoveEmptyFolders(directoryPath);
             }
+        }
+
+        static void PrintHelp()
+        {
+            Console.WriteLine("Usage: organize [OPTIONS]");
+            Console.WriteLine("Options:");
+            Console.WriteLine("  -d, --directory <path>  Set the directory to organize (default: current directory)");
+            Console.WriteLine("  -re, --remove-empty     Remove empty folders after organizing");
+            Console.WriteLine("  -v, --verbose           Print verbose output");
+            Console.WriteLine("  -h, --help              Show this help message");
+            Console.WriteLine("  -s, --syntax            Check the syntax of the .organizer file");
         }
     }
 
@@ -111,6 +130,10 @@ namespace FileOrganizer
             // Load rules from file
             else
             {
+                if (!CheckSyntax(organizerFilePath))
+                {
+                    Environment.Exit(1);
+                }
                 foreach (string line in File.ReadAllLines(organizerFilePath))
                 {
                     line.Trim();
@@ -324,5 +347,115 @@ namespace FileOrganizer
                 }
             }
         }
+        public static bool CheckSyntax(string organizerFilePath)
+        {
+            if (!File.Exists(organizerFilePath))
+            {
+                Console.WriteLine(".organizer file not found.");
+                return false;
+            }
+
+            string[] lines = File.ReadAllLines(organizerFilePath);
+            List<string> errors = new List<string>();
+
+            for (int i = 0; i < lines.Length; i++)
+            {
+                string line = lines[i].Trim();
+
+                // Skip empty lines
+                if (string.IsNullOrWhiteSpace(line))
+                    continue;
+
+                if (line.StartsWith("!"))
+                {
+                    // Exclusion rule syntax check
+                    if (!line.EndsWith('/') && !line.Contains('.'))
+                    {
+                        errors.Add($"Line {i + 1}: Exclusion rule '{line}' should end with '/' (folder) or be a file name");
+                    }
+                    else if (line.EndsWith('/') && line.Length == 1)
+                    {
+                        errors.Add($"Line {i + 1}: Exclusion rule '{line}' should not be empty");
+                    }
+                }
+                else
+                {
+                    // Folder rule syntax check
+                    int slashIndex = line.LastIndexOf('/');
+                    if (slashIndex == -1)
+                    {
+                        errors.Add($"Line {i + 1}: Missing '/' in folder rule '{line}'");
+                        continue;
+                    }
+
+                    string folder = line.Substring(0, slashIndex + 1);
+                    string extensions = line.Substring(slashIndex + 1).Trim();
+
+                    if (string.IsNullOrEmpty(extensions))
+                    {
+                        errors.Add($"Line {i + 1}: No extensions specified in folder rule '{line}'");
+                        continue;
+                    }
+
+                    string[] patterns = extensions.Split(',');
+
+                    foreach (string pattern in patterns)
+                    {
+                        string trimmedPattern = pattern.Trim();
+
+                        if (string.IsNullOrEmpty(trimmedPattern))
+                        {
+                            errors.Add($"Line {i + 1}: Empty extension pattern in folder rule '{line}'");
+                        }
+                        else if (!IsValidPattern(trimmedPattern))
+                        {
+                            errors.Add($"Line {i + 1}: Invalid extension pattern '{trimmedPattern}' in folder rule '{line}'");
+                        }
+                    }
+                }
+            }
+
+            if (errors.Count > 0)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Syntax errors found in .organizer file:");
+                foreach (string error in errors)
+                {
+                    Console.WriteLine(error);
+                }
+                Console.ResetColor();
+                return false;
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("No syntax errors found in .organizer file.");
+                Console.ResetColor();
+                return true;
+            }
+        }
+
+        private static bool IsValidPattern(string pattern)
+        {
+            // Check for valid wildcard pattern
+            if (pattern.Contains("*"))
+            {
+                // Ensure that wildcard patterns are valid
+                if ((pattern.StartsWith("*") && pattern.Contains(".")) || pattern.Contains("*."))
+                {
+                    return true;
+                }
+                return false;
+            }
+
+            // Check for valid file extension
+            if (pattern.Contains(".") && pattern.Length > 1 && pattern.LastIndexOf('.') != 0)
+            {
+                return true;
+            }
+
+            return false;
+        }
+    
     }
 }

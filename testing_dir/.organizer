@@ -1,4 +1,4 @@
-Test/ tester*.py, *tester.txt
+Test/ file*.py, *file.txt, file.txt
 Images/ *.jpg, *.png
 Code/ *.py, *.js, *.json
 
