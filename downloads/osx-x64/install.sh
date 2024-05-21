@@ -15,9 +15,10 @@ echo "Downloading $TOOL_NAME..."
 wget $TOOL_URL -O $TOOL_NAME.tar.gz
 
 echo "Extracting $TOOL_NAME..."
-tar -xzvf $TOOL_NAME.tar.gz
+tar -xzf $TOOL_NAME.tar.gz
 
 echo "Installing $TOOL_NAME to $INSTALL_DIR..."
+mv osx-x64/* $TOOL_NAME
 mv $TOOL_NAME/* $INSTALL_DIR
 
 echo "Creating a symbolic link '$LINK_NAME' for '$TOOL_NAME'..."
