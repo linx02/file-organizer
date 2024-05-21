@@ -343,14 +343,10 @@ namespace FileOrganizer
                 RemoveEmptyFolders(dir);
             }
             
-            foreach (string dir in Directory.GetDirectories(directory))
+            if (Directory.GetFiles(directory).Length == 0 && Directory.GetDirectories(directory).Length == 0)
             {
-                if (Directory.GetFiles(dir).Length == 0 && Directory.GetDirectories(dir).Length == 0)
-                {
-                    if (negativeFolders.Contains(Path.GetFileName(dir) + '/')) continue;
-                    Directory.Delete(dir);
-                    Message(dir, "delete");
-                }
+                Directory.Delete(directory);
+                Message(directory, "delete");
             }
         }
 
