@@ -373,8 +373,12 @@ namespace FileOrganizer
                 RemoveEmptyFolders(dir);
             }
             
-            if (Directory.GetFiles(directory).Length == 0 && Directory.GetDirectories(directory).Length == 0)
+            if ((Directory.GetFiles(directory).Length == 0 && Directory.GetDirectories(directory).Length == 0) || (Directory.GetFiles(directory).Length == 1 && Directory.GetFiles(directory)[0].EndsWith(".DS_Store")))
             {
+                if (Directory.GetFiles(directory).Length == 1 && Directory.GetFiles(directory)[0].EndsWith(".DS_Store"))
+                {
+                    File.Delete(Directory.GetFiles(directory)[0]);
+                }
                 Directory.Delete(directory);
                 Message(directory, "delete");
                 foldersRemoved++;

@@ -1,12 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "x6jfuHysr9txkYAXQwXRXvBBx0RrSOKv2OkoAVM+YryuEzx8g5fraXqCLuuPtp2PIl65ihKwd4we+ASMD2C11g==",
+  "dgSpecHash": "/zTBdLMX76qffopqPwRICCrjEDDVOcr9r/SLxYtJDArhfKHNNpO/GsD/pYpH2rwv0ppi0KKwWiCQqsmRWkv2LA==",
   "success": true,
   "projectFilePath": "/Users/linuselvius/Documents/file-organizer/FileOrganizer.csproj",
-  "expectedPackageFiles": [
-    "/Users/linuselvius/.nuget/packages/microsoft.netcore.app.runtime.osx-x64/8.0.2/microsoft.netcore.app.runtime.osx-x64.8.0.2.nupkg.sha512",
-    "/Users/linuselvius/.nuget/packages/microsoft.aspnetcore.app.runtime.osx-x64/8.0.2/microsoft.aspnetcore.app.runtime.osx-x64.8.0.2.nupkg.sha512",
-    "/Users/linuselvius/.nuget/packages/microsoft.netcore.app.host.osx-x64/8.0.2/microsoft.netcore.app.host.osx-x64.8.0.2.nupkg.sha512"
-  ],
+  "expectedPackageFiles": [],
   "logs": []
 }
