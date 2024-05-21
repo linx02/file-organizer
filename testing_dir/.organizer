@@ -1,4 +1,6 @@
 Test/ tester*.py, *tester.txt
 Images/ *.jpg, *.png
 Code/ *.py, *.js, *.json
-Important/ test.json
+
+!Important/
+!test.js

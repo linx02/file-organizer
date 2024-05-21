@@ -14,6 +14,7 @@ namespace FileOrganizer
             // Initially set the directory path to the current directory
             string directoryPath = Directory.GetCurrentDirectory();
             bool removeEmptyFolders = false;
+            bool verbose = false;
 
             // Parse command line arguments
             foreach (string arg in args)
@@ -28,11 +29,15 @@ namespace FileOrganizer
                     case "--remove-empty":
                         removeEmptyFolders = true;
                         break;
+                    case "-v":
+                    case "--verbose":
+                        verbose = true;
+                        break;
                 }
             }
 
             // Create an organizer object and organize the files
-            Organizer organizer = new Organizer(directoryPath);
+            Organizer organizer = new Organizer(directoryPath, verbose);
             organizer.LoadRules();
             organizer.LoadFiles();
             organizer.Organize();
@@ -50,14 +55,18 @@ namespace FileOrganizer
         // Fields
         private string directoryPath;
         private string organizerFilePath;
+        private bool verbose;
         private List<string> files = new List<string>();
         private Dictionary<string, List<string>> rules = new Dictionary<string, List<string>>();
+        private List<string> negativeFolders = new List<string>();
+        private List<string> negativeFiles = new List<string>();
 
         // Constructor
-        public Organizer(string directoryPath)
+        public Organizer(string directoryPath, bool verbose = false)
         {
             this.directoryPath = directoryPath;
             organizerFilePath = Path.Combine(directoryPath, ".organizer");
+            this.verbose = verbose;
         }
 
         // Load rules from the organizer file
@@ -97,23 +106,40 @@ namespace FileOrganizer
                     lines.Add(line.TrimEnd(',', ' '));
                 }
                 File.WriteAllLines(organizerFilePath, lines);
+                Message(organizerFilePath, "create");
             }
             // Load rules from file
             else
             {
                 foreach (string line in File.ReadAllLines(organizerFilePath))
                 {
-                    // Split the line into folder and extensions
-                    string folder = line.LastIndexOf('/') == -1 ? line : line.Substring(0, line.LastIndexOf('/'));
-                    string[] parts = line.Substring(folder.Length + 1).Split(',');
-
-                    // Add the folder and extensions to the rules dictionary
-                    List<string> extensions = new List<string>();
-                    foreach (string part in parts)
-                    {
-                        extensions.Add(part.Trim());
+                    line.Trim();
+                    if (line == "") continue;
+                    // Load negative rules
+                    if (line.StartsWith('!')){
+                        // Negative folder
+                        if (line.EndsWith('/')){
+                            negativeFolders.Add(line.Substring(1).Trim());
+                        }
+                        else {
+                            // Negative file
+                            negativeFiles.Add(line.Substring(1).Trim());
+                        }
                     }
-                    rules.Add(folder, extensions);
+                    else{
+                        // Normal rule
+                        // Split the line into folder and extensions
+                        string folder = line.LastIndexOf('/') == -1 ? line : line.Substring(0, line.LastIndexOf('/'));
+                        string[] parts = line.Substring(folder.Length + 1).Split(',');
+
+                        // Add the folder and extensions to the rules dictionary
+                        List<string> extensions = new List<string>();
+                        foreach (string part in parts)
+                        {
+                            extensions.Add(part.Trim());
+                        }
+                        rules.Add(folder, extensions);
+                    }
                 }
             }
         }
@@ -194,21 +220,73 @@ namespace FileOrganizer
             return false;
         }
 
+        private bool CheckNegative(string file)
+        {
+            foreach (string folder in negativeFolders)
+            {
+                if (file.Contains(folder))
+                {
+                    Message(file, "ignore");
+                    return true;
+                }
+            }
+            if (negativeFiles.Contains(Path.GetFileName(file)))
+            {
+                Message(file, "ignore");
+                return true;
+            }
+            return false;
+        }
+
+        private void Message(string message, string type)
+        {
+            if (!verbose) return;
+            switch(type)
+            {
+                case "move":
+                    Console.ForegroundColor = ConsoleColor.DarkCyan;
+                    Console.Write("[->] ");
+                    Console.ResetColor();
+                    Console.WriteLine(message);
+                    break;
+                case "create":
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.Write("[+] ");
+                    Console.ResetColor();
+                    Console.WriteLine(message);
+                    break;
+                case "ignore":
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.Write("[!] ");
+                    Console.ResetColor();
+                    Console.WriteLine(message);
+                    break;
+                case "delete":
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.Write("[-] ");
+                    Console.ResetColor();
+                    Console.WriteLine(message);
+                    break;
+            }
+        }
+
         // Move a file to a folder
         private void MoveFile(string file, string folder)
         {
-            // Check file not already in folder
-            if (file.StartsWith(folder))
+            // Check file not already in folder and not negative
+            if (file.StartsWith(folder) || CheckNegative(file))
             {
                 return;
             }
             if (!Directory.Exists(folder))
             {
                 Directory.CreateDirectory(folder);
+                Console.ForegroundColor = ConsoleColor.Green;
+                Message(folder, "create");
             }
             string newFile = Path.Combine(folder, Path.GetFileName(file));
             File.Move(file, newFile);
-            Console.WriteLine("Moved " + file + " to " + newFile);
+            Message(file + " -> " + newFile, "move");
         }
 
         // Organize the files
@@ -242,7 +320,7 @@ namespace FileOrganizer
                 if (Directory.GetFiles(dir).Length == 0 && Directory.GetDirectories(dir).Length == 0)
                 {
                     Directory.Delete(dir);
-                    Console.WriteLine("Deleted empty folder: " + dir);
+                    Message(dir, "delete");
                 }
             }
         }
