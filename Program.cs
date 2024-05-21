@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using System.Linq;
+using System.Diagnostics;
 
 namespace FileOrganizer
 {
@@ -16,6 +17,11 @@ namespace FileOrganizer
             bool removeEmptyFolders = false;
             bool verbose = false;
 
+            Stopwatch timer = new Stopwatch();
+
+            // Start the timer
+            timer.Start();
+
             // Parse command line arguments
             foreach (string arg in args)
             {
@@ -23,7 +29,7 @@ namespace FileOrganizer
                 {
                     case "-d":
                     case "--directory":
-                        directoryPath = args[Array.IndexOf(args, arg) + 1];
+                        directoryPath = Path.GetFullPath(args[Array.IndexOf(args, arg) + 1]);
                         break;
                     case "-re":
                     case "--remove-empty":
@@ -39,7 +45,7 @@ namespace FileOrganizer
                         return;
                     case "-s":
                     case "--syntax":
-                        Organizer.CheckSyntax(Path.Combine(directoryPath, ".organizer"));
+                        Organizer.CheckSyntax(Path.Combine(directoryPath, ".organizer"), verboseOnOk: true);
                         return;
                 }
             }
@@ -55,6 +61,16 @@ namespace FileOrganizer
             {
                 organizer.RemoveEmptyFolders(directoryPath);
             }
+
+            // Stop the timer
+            timer.Stop();
+
+            // Print summary
+            Console.WriteLine();
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine($"Finished in {(double)timer.ElapsedMilliseconds / 1000}s");
+            Console.ForegroundColor = ConsoleColor.DarkCyan;
+            Console.WriteLine($"Moved {organizer.filesMoved} files, Created {organizer.foldersCreated} folders, Removed {organizer.foldersRemoved} folders, Ignored {organizer.filesIgnored} files");
         }
 
         static void PrintHelp()
@@ -79,6 +95,10 @@ namespace FileOrganizer
         private Dictionary<string, List<string>> rules = new Dictionary<string, List<string>>();
         private List<string> negativeFolders = new List<string>();
         private List<string> negativeFiles = new List<string>();
+        public int filesMoved = 0;
+        public int foldersCreated = 0;
+        public int foldersRemoved = 0;
+        public int filesIgnored = 0;
 
         // Constructor
         public Organizer(string directoryPath, bool verbose = false)
@@ -297,19 +317,26 @@ namespace FileOrganizer
         private void MoveFile(string file, string folder)
         {
             // Check file not already in folder and not negative
-            if (file.StartsWith(folder) || CheckNegative(file))
+            if (file.StartsWith(folder))
             {
+                return;
+            }
+            else if (CheckNegative(file))
+            {
+                filesIgnored++;
                 return;
             }
             if (!Directory.Exists(folder))
             {
                 Directory.CreateDirectory(folder);
+                foldersCreated++;
                 Console.ForegroundColor = ConsoleColor.Green;
                 Message(folder, "create");
             }
             string newFile = Path.Combine(folder, Path.GetFileName(file));
             File.Move(file, newFile);
             Message(file + " -> " + newFile, "move");
+            filesMoved++;
         }
 
         // Organize the files
@@ -339,7 +366,10 @@ namespace FileOrganizer
         {
             foreach (string dir in Directory.GetDirectories(directory))
             {
-                if (negativeFolders.Contains(Path.GetFileName(dir) + '/')) continue;
+                if (negativeFolders.Contains(dir.Substring(dir.LastIndexOf('/') + 1) + '/')) {
+                    filesIgnored += Directory.GetFiles(dir, "*", SearchOption.AllDirectories).Length;
+                    continue;
+                };
                 RemoveEmptyFolders(dir);
             }
             
@@ -347,10 +377,11 @@ namespace FileOrganizer
             {
                 Directory.Delete(directory);
                 Message(directory, "delete");
+                foldersRemoved++;
             }
         }
 
-        public static bool CheckSyntax(string organizerFilePath)
+        public static bool CheckSyntax(string organizerFilePath, bool verboseOnOk = false)
         {
             if (!File.Exists(organizerFilePath))
             {
@@ -431,9 +462,12 @@ namespace FileOrganizer
             }
             else
             {
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("No syntax errors found in .organizer file.");
-                Console.ResetColor();
+                if (verboseOnOk)
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine("No syntax errors found in .organizer file.");
+                    Console.ResetColor();
+                }
                 return true;
             }
         }
