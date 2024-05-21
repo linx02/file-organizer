@@ -21,7 +21,7 @@ wget -q $TOOL_URL -O $TOOL_NAME.tar.gz
 echo "Extracting $TOOL_NAME..."
 tar -xzf $TOOL_NAME.tar.gz
 
-# Move the extracted files to the tool name directory
+# Rename the extracted directory to TOOL_NAME
 if [ -d "osx-x64" ]; then
     mv osx-x64 $TOOL_NAME
 else
@@ -29,25 +29,29 @@ else
     exit 1
 fi
 
-# Move the tool to the installation directory and ensure it’s executable
+# Move the entire TOOL_NAME directory to the installation directory
 echo "Installing $TOOL_NAME to $INSTALL_DIR..."
-mv $TOOL_NAME/* $INSTALL_DIR
-chmod +x $INSTALL_DIR/$TOOL_NAME
+mv $TOOL_NAME $INSTALL_DIR
+
+# Ensure the main executable is executable
+chmod +x $INSTALL_DIR/$TOOL_NAME/FileOrganizer
 
 # Create a symbolic link
 echo "Creating a symbolic link '$LINK_NAME' for '$TOOL_NAME'..."
-ln -sf $INSTALL_DIR/$TOOL_NAME $INSTALL_DIR/$LINK_NAME
+ln -sf $INSTALL_DIR/$TOOL_NAME/FileOrganizer $HOME/.local/bin/$LINK_NAME
 
 # Clean up temporary files
 cd ~
 rm -rf $TEMP_DIR
 
-if ! echo "$PATH" | grep -q "$INSTALL_DIR"; then
-    echo "Adding $INSTALL_DIR to PATH..."
-    echo "export PATH=\"$INSTALL_DIR:\$PATH\"" >> ~/.bash_profile
+# Check if the .local/bin is in the PATH, add if it's not
+if ! echo "$PATH" | grep -q "$HOME/.local/bin"; then
+    echo "Adding $HOME/.local/bin to PATH..."
+    echo "export PATH=\"$HOME/.local/bin:\$PATH\"" >> ~/.bash_profile
     source ~/.bash_profile
 fi
 
+# Verify installation
 if command -v $LINK_NAME >/dev/null 2>&1; then
     echo "$TOOL_NAME installed successfully. Use '$LINK_NAME --help' to get started!"
 else
