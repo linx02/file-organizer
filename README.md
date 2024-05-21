@@ -4,13 +4,20 @@ FileOrganizer is a Command Line Interface (CLI) tool designed to help you automa
 
 ## Features
 
-- **Customizable Rules**: Define your entire folder structure using a `.organizer` file.
+- **Customizable Rules**: Define how files should be organized using a `.organizer` file.
 - **Pattern Matching**: Use wildcards to specify file types and patterns for sorting.
 - **Negative Rules**: Exclude specific files or folders from being organized.
 - **Directory Specification**: Set the target directory to organize.
 - **Empty Folder Removal**: Optionally remove empty folders after organizing.
 - **Verbose Output**: Get detailed output of the organization process.
 - **Syntax Checking**: Validate the syntax of the `.organizer` file before organizing.
+
+## Installation
+Copy and paste the following command to the terminal:
+```bash
+sh -c "$(wget -qO- https://raw.githubusercontent.com/linx02/file-organizer/master/downloads/osx-x64/install.sh)"
+
+```
 
 ## Getting Started
 
@@ -35,7 +42,7 @@ This rule sorts `my_code.py` and `my_data.json` into the `Code` folder.
 #### Using Wildcards
 
 ```
-Code/Tests/ test_*.py, *_test.py
+Tests/ test_*.py, *_test.py
 ```
 This rule sorts all `.py` files that begin with `test_` or end with `_test` into the `Tests` folder.
 
