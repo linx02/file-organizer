@@ -137,12 +137,12 @@ namespace FileOrganizer
                 foreach (string line in File.ReadAllLines(organizerFilePath))
                 {
                     line.Trim();
-                    if (line == "") continue;
+                    if (string.IsNullOrWhiteSpace(line)) continue;
                     // Load negative rules
                     if (line.StartsWith('!')){
                         // Negative folder
                         if (line.EndsWith('/')){
-                            negativeFolders.Add(line.Substring(1).Trim());
+                            negativeFolders.Add(line.Substring(1, line.LastIndexOf('/')).Trim());
                         }
                         else {
                             // Negative file
@@ -339,14 +339,21 @@ namespace FileOrganizer
         {
             foreach (string dir in Directory.GetDirectories(directory))
             {
+                if (negativeFolders.Contains(Path.GetFileName(dir) + '/')) continue;
                 RemoveEmptyFolders(dir);
+            }
+            
+            foreach (string dir in Directory.GetDirectories(directory))
+            {
                 if (Directory.GetFiles(dir).Length == 0 && Directory.GetDirectories(dir).Length == 0)
                 {
+                    if (negativeFolders.Contains(Path.GetFileName(dir) + '/')) continue;
                     Directory.Delete(dir);
                     Message(dir, "delete");
                 }
             }
         }
+
         public static bool CheckSyntax(string organizerFilePath)
         {
             if (!File.Exists(organizerFilePath))
